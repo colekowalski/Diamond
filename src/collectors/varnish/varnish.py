@@ -275,7 +275,7 @@ class VarnishCollector(diamond.collector.Collector):
             'bin': 'The path to the varnishstat binary',
             'use_sudo': 'Use sudo?',
             'sudo_cmd': 'Path to sudo',
-            'varnish_version': 'Varnish version (3, 4, 5)',
+            'varnish_version': 'Varnish version (3, 4, 5): [Default: 5]',
         })
         return config_help
 
@@ -302,12 +302,17 @@ class VarnishCollector(diamond.collector.Collector):
         if not matches:
             return
 
-        if self.config['varnish_version'] == 3:
+        varnish_version = 5
+        if self.config['varnish_version'] is not None:
+            varnish_version = int(self.config['varnish_version'])
+        if varnish_version == 3:
             keys = self._KEYS_v3
-        elif self.config['varnish_version'] == 4:
+        elif varnish_version == 4:
             keys = self._KEYS_v4
-        elif self.config['varnish_version'] == 5:
+        elif varnish_version == 5:
             keys = self._KEYS_v5
+        else:
+            raise RuntimeError('Invalid varnish_version specified')
 
         for line in matches:
             if line[0] in keys:
